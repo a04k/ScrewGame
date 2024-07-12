@@ -1,7 +1,6 @@
-// GameLogic.tsx
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from "react";
 import { ref, onValue, set } from "firebase/database";
-import { database } from '../Firebase/config';
+import { database } from "../Firebase/Config";
 
 interface Card {
   value: string;
@@ -33,7 +32,14 @@ const createDeck = (): string[] => {
       deck.push(i.toString());
     }
   }
-  deck.push(...Array(2).fill('R'), ...Array(2).fill('+20'), ...Array(4).fill('G'), '-1', ...Array(4).fill('E'), ...Array(4).fill('S'));
+  deck.push(
+    ...Array(2).fill("R"),
+    ...Array(2).fill("+20"),
+    ...Array(4).fill("G"),
+    "-1",
+    ...Array(4).fill("E"),
+    ...Array(4).fill("S"),
+  );
   return shuffle(deck);
 };
 
@@ -52,7 +58,7 @@ const initialGameState: GameState = {
     { playerNumber: 3, cards: [], totalPoints: 0 },
     { playerNumber: 4, cards: [], totalPoints: 0 },
   ],
-  groundCard: { value: '', isVisible: true },
+  groundCard: { value: "", isVisible: true },
   deck: [],
   currentPlayerTurn: 1,
   roundNumber: 1,
@@ -66,7 +72,7 @@ export const useGameLogic = () => {
   const [gameState, setGameState] = useState<GameState>(initialGameState);
 
   useEffect(() => {
-    const gameStateRef = ref(database, 'gameState');
+    const gameStateRef = ref(database, "gameState");
     onValue(gameStateRef, (snapshot) => {
       const data = snapshot.val();
       if (data) {
@@ -79,23 +85,25 @@ export const useGameLogic = () => {
 
   const updateGameState = (newState: Partial<GameState>) => {
     const updatedState = { ...gameState, ...newState };
-    set(ref(database, 'gameState'), updatedState);
+    set(ref(database, "gameState"), updatedState);
   };
 
   const initializeGame = () => {
     const deck = createDeck();
-    const players = gameState.players.map(player => ({
+    const players = gameState.players.map((player) => ({
       ...player,
-      cards: Array(4).fill(0).map(() => ({ value: deck.pop() || '', isVisible: true })),
+      cards: Array(4)
+        .fill(0)
+        .map(() => ({ value: deck.pop() || "", isVisible: true })),
       totalPoints: 0,
     }));
-    const groundCard = { value: deck.pop() || '', isVisible: true };
+    const groundCard = { value: deck.pop() || "", isVisible: true };
     updateGameState({ players, groundCard, deck });
 
     setTimeout(() => {
-      const updatedPlayers = players.map(player => ({
+      const updatedPlayers = players.map((player) => ({
         ...player,
-        cards: player.cards.map(card => ({ ...card, isVisible: false }))
+        cards: player.cards.map((card) => ({ ...card, isVisible: false })),
       }));
       updateGameState({ players: updatedPlayers });
     }, 10000);
@@ -104,14 +112,14 @@ export const useGameLogic = () => {
   const drawCard = () => {
     if (gameState.screwCalled || gameState.drawnCard) return;
 
-    const drawnCard = gameState.deck.pop() || '';
-    updateGameState({ 
+    const drawnCard = gameState.deck.pop() || "";
+    updateGameState({
       drawnCard: { value: drawnCard, isVisible: true },
       deck: gameState.deck,
     });
   };
 
-  const playCard = (action: 'keep' | 'discard', cardIndex?: number) => {
+  const playCard = (action: "keep" | "discard", cardIndex?: number) => {
     const currentPlayer = gameState.players[gameState.currentPlayerTurn - 1];
     const drawnCard = gameState.drawnCard;
 
@@ -120,18 +128,23 @@ export const useGameLogic = () => {
     let updatedPlayers = [...gameState.players];
     let updatedGroundCard = gameState.groundCard;
 
-    if (action === 'keep' && cardIndex !== undefined) {
+    if (action === "keep" && cardIndex !== undefined) {
       const discardedCard = currentPlayer.cards[cardIndex];
-      updatedPlayers[gameState.currentPlayerTurn - 1].cards[cardIndex] = { value: drawnCard.value, isVisible: false };
+      updatedPlayers[gameState.currentPlayerTurn - 1].cards[cardIndex] = {
+        value: drawnCard.value,
+        isVisible: false,
+      };
       updatedGroundCard = { value: discardedCard.value, isVisible: true };
-    } else if (action === 'discard') {
+    } else if (action === "discard") {
       updatedGroundCard = { value: drawnCard.value, isVisible: true };
-      
-      // Handle special card functions
-      if (['7', '8'].includes(drawnCard.value)) {
-        // Allow player to see one of their own cards
-        const playerCards = updatedPlayers[gameState.currentPlayerTurn - 1].cards;
-        const hiddenCardIndex = playerCards.findIndex(card => !card.isVisible);
+      // handle special card functions
+      if (["7", "8"].includes(drawnCard.value)) {
+        // allow player to see one of their own cards
+        const playerCards =
+          updatedPlayers[gameState.currentPlayerTurn - 1].cards;
+        const hiddenCardIndex = playerCards.findIndex(
+          (card) => !card.isVisible,
+        );
         if (hiddenCardIndex !== -1) {
           playerCards[hiddenCardIndex].isVisible = true;
           setTimeout(() => {
@@ -139,33 +152,36 @@ export const useGameLogic = () => {
             updateGameState({ players: updatedPlayers });
           }, 5000);
         }
-      } else if (['9', '10'].includes(drawnCard.value)) {
+      } else if (["9", "10"].includes(drawnCard.value)) {
         // Allow player to see one card of any other player
         // This will be handled in the UI, allowing the player to choose
-      } else if (drawnCard.value === 'E') {
+      } else if (drawnCard.value === "E") {
         // Allow player to see one card of each opponent
         updatedPlayers.forEach((player, index) => {
           if (index !== gameState.currentPlayerTurn - 1) {
-            const hiddenCardIndex = player.cards.findIndex(card => !card.isVisible);
+            const hiddenCardIndex = player.cards.findIndex(
+              (card) => !card.isVisible,
+            );
             if (hiddenCardIndex !== -1) {
               player.cards[hiddenCardIndex].isVisible = true;
               setTimeout(() => {
                 player.cards[hiddenCardIndex].isVisible = false;
                 updateGameState({ players: updatedPlayers });
-              }, 5000);
+              }, 3000);
             }
           }
         });
-      } else if (drawnCard.value === 'S') {
+      } else if (drawnCard.value === "S") {
         // Allow player to swap a card with any opponent
         // This will be handled in the UI, allowing the player to choose
       }
     }
 
-    const nextPlayer = (gameState.currentPlayerTurn % gameState.players.length) + 1;
-    updateGameState({ 
-      players: updatedPlayers, 
-      groundCard: updatedGroundCard, 
+    const nextPlayer =
+      (gameState.currentPlayerTurn % gameState.players.length) + 1;
+    updateGameState({
+      players: updatedPlayers,
+      groundCard: updatedGroundCard,
       currentPlayerTurn: nextPlayer,
       drawnCard: null,
     });
@@ -182,35 +198,46 @@ export const useGameLogic = () => {
     }, 5000);
   };
 
-  const swapCards = (playerIndex: number, cardIndex: number, targetPlayerIndex: number, targetCardIndex: number) => {
+  const swapCards = (
+    playerIndex: number,
+    cardIndex: number,
+    targetPlayerIndex: number,
+    targetCardIndex: number,
+  ) => {
     const updatedPlayers = [...gameState.players];
     const temp = updatedPlayers[playerIndex].cards[cardIndex];
-    updatedPlayers[playerIndex].cards[cardIndex] = updatedPlayers[targetPlayerIndex].cards[targetCardIndex];
+    updatedPlayers[playerIndex].cards[cardIndex] =
+      updatedPlayers[targetPlayerIndex].cards[targetCardIndex];
     updatedPlayers[targetPlayerIndex].cards[targetCardIndex] = temp;
     updateGameState({ players: updatedPlayers });
   };
 
   const callScrew = () => {
     if (gameState.screwCalled) return;
-    updateGameState({ screwCalled: true, screwCalledBy: gameState.currentPlayerTurn });
+    updateGameState({
+      screwCalled: true,
+      screwCalledBy: gameState.currentPlayerTurn,
+    });
   };
 
   const endRound = () => {
-    let updatedPlayers = gameState.players.map(player => ({
+    let updatedPlayers = gameState.players.map((player) => ({
       ...player,
-      cards: player.cards.map(card => ({ ...card, isVisible: true }))
+      cards: player.cards.map((card) => ({ ...card, isVisible: true })),
     }));
 
-    const screwCaller = gameState.screwCalledBy ? updatedPlayers[gameState.screwCalledBy - 1] : null;
-    const scores = updatedPlayers.map(player => 
+    const screwCaller = gameState.screwCalledBy
+      ? updatedPlayers[gameState.screwCalledBy - 1]
+      : null;
+    const scores = updatedPlayers.map((player) =>
       player.cards.reduce((sum, card) => {
-        if (card.value === 'R') return sum + 20;
-        if (card.value === '+20') return sum + 20;
-        if (card.value === 'G') return sum;
-        if (card.value === '-1') return sum - 1;
-        if (card.value === 'E' || card.value === 'S') return sum + 15;
+        if (card.value === "R") return sum + 20;
+        if (card.value === "+20") return sum + 20;
+        if (card.value === "G") return sum;
+        if (card.value === "-1") return sum - 1;
+        if (card.value === "E" || card.value === "S") return sum + 15;
         return sum + parseInt(card.value);
-      }, 0)
+      }, 0),
     );
     const lowestScore = Math.min(...scores);
 
@@ -222,23 +249,23 @@ export const useGameLogic = () => {
       return {
         ...player,
         totalPoints: player.totalPoints + pointsToAdd,
-        cards: []
+        cards: [],
       };
     });
 
     if (gameState.roundNumber === 5) {
-      updateGameState({ 
+      updateGameState({
         players: updatedPlayers,
-        gameOver: true
+        gameOver: true,
       });
     } else {
-      updateGameState({ 
+      updateGameState({
         players: updatedPlayers,
         roundNumber: gameState.roundNumber + 1,
         screwCalled: false,
         screwCalledBy: null,
         deck: createDeck(),
-        currentPlayerTurn: 1
+        currentPlayerTurn: 1,
       });
       initializeGame();
     }
@@ -259,6 +286,6 @@ export const useGameLogic = () => {
     swapCards,
     callScrew,
     endRound,
-    checkForWin
+    checkForWin,
   };
 };
