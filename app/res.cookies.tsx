@@ -1,8 +1,8 @@
 "use client";
 import Cookies from 'js-cookie';
 const getCookieState = (): boolean => {
-    const roomCode = "someRoomCode";
-    Cookies.set('fuck', JSON.stringify({state: false, roomCode: roomCode }), { expires: 3 });
+    // const roomCode = "someRoomCode";
+    // Cookies.set('fuck', JSON.stringify({state: false, roomCode: roomCode }), { expires: 3 });
 
     const cookieValue = Cookies.get('fuck');
     
