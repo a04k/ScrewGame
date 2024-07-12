@@ -2,12 +2,16 @@
 @tailwind components;
 @tailwind utilities;
 
-/* :root {
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
-  --background-end-rgb: 255, 255, 255;
-}
+ :root {
+    --color1 : #06141b;
+    --color2 : #11212d;
+    --color3 : #253745;
+    --color4 : #4a5c6a;
+    --color5 : #9ba8ab;
+    --color6 : #ccd0cf;
 
+}
+/*
 @media (prefers-color-scheme: dark) {
   :root {
     --foreground-rgb: 255, 255, 255;
@@ -31,3 +35,14 @@ body {
     text-wrap: balance;
   }
 } */
+ .color1 {
+  background-color: var(--color1);
+ }
+ .color4 {
+  background-color: var(--color4);
+  color: var(--color1);
+ }
+ .color3 {
+  background-color: var(--color2);
+  color : var(--color6);
+ }
