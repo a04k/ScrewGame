@@ -1,37 +1,74 @@
-"use client"
-import React from 'react';
-import GameTable from './GameTable';
-import { useGameLogic } from './Components/GameLogic';
+import React, { useEffect } from "react";
+import { useGameLogic } from "./useGameLogic";
 
-const Game: React.FC = () => {
-  const { gameState, drawCard, callScrew, endRound } = useGameLogic();
+const GameUI = () => {
+  const {
+    gameState,
+    drawCard,
+    playCard,
+    seeCard,
+    swapCards,
+    callScrew,
+    endRound,
+    checkForWin,
+  } = useGameLogic();
+
+  useEffect(() => {
+    if (gameState.cardToSee) {
+      const { playerIndex, cardIndex } = gameState.cardToSee;
+      if (playerIndex !== -1 && cardIndex !== -1) {
+        seeCard(playerIndex, cardIndex);
+      }
+    }
+  }, [gameState.cardToSee]);
+
+  const handlePlayCard = (action, cardIndex) => {
+    playCard(action, cardIndex);
+  };
+
+  const renderCards = (cards, playerIndex) => {
+    return cards.map((card, index) => (
+      <div key={index} className="card">
+        {card.isVisible ? (
+          <img src={`cards/${card.value}.svg`} alt={card.value} />
+        ) : (
+          <img src="cards/back.svg" alt="back" />
+        )}
+      </div>
+    ));
+  };
 
   return (
-    <div>
-      <GameTable
-        players={gameState.players}
-        groundCard={gameState.groundCard}
-        onDrawCard={drawCard}
-        onScrewCall={callScrew}
-        currentPlayerTurn={gameState.currentPlayerTurn}
-        roundNumber={gameState.roundNumber}
-      />
-      {gameState.screwCalled && (
-        <button onClick={endRound} className="mt-4 px-4 py-2 bg-yellow-500 text-white rounded-lg shadow-md">
-          End Round
-        </button>
-      )}
-      {gameState.gameOver && (
-        <div className="mt-4 text-white text-2xl">
-          Game Over! Winner: Player {
-            gameState.players.reduce((minPlayer, player) => 
-              player.totalPoints < minPlayer.totalPoints ? player : minPlayer
-            ).playerNumber
-          }
-        </div>
-      )}
+    <div className="game">
+      <div className="deck">
+        <button onClick={drawCard}>Draw Card</button>
+        {gameState.drawnCard && (
+          <div className="card">
+            <img src={`cards/${gameState.drawnCard.value}.svg`} alt={gameState.drawnCard.value} />
+          </div>
+        )}
+      </div>
+      <div className="players">
+        {gameState.players.map((player, playerIndex) => (
+          <div key={player.playerNumber} className="player">
+            <h3>Player {player.playerNumber}</h3>
+            <div className="cards">
+              {renderCards(player.cards, playerIndex)}
+            </div>
+            {playerIndex === gameState.currentPlayerTurn - 1 && (
+              <div className="actions">
+                <button onClick={() => handlePlayCard("keep", 0)}>Keep Card 1</button>
+                <button onClick={() => handlePlayCard("keep", 1)}>Keep Card 2</button>
+                <button onClick={() => handlePlayCard("keep", 2)}>Keep Card 3</button>
+                <button onClick={() => handlePlayCard("keep", 3)}>Keep Card 4</button>
+                <button onClick={() => handlePlayCard("discard")}>Discard</button>
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
     </div>
   );
 };
 
-export default Game;
+export default GameUI;
