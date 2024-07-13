@@ -37,8 +37,9 @@ const createDeck = (): string[] => {
     ...Array(2).fill("+20"),
     ...Array(4).fill("G"),
     "-1",
-    ...Array(4).fill("K"),
-    ...Array(4).fill("S"),
+    ...Array(2).fill("K"), // el k7b 🐐
+    ...Array(4).fill("S"), // 5od w hat / swap
+    ...Array(2).fill("B"), // basra
   );
   return shuffle(deck);
 };
@@ -65,7 +66,7 @@ const initialGameState: GameState = {
 
 export const useGameLogic = () => {
   const [gameState, setGameState] = useState<GameState>(initialGameState);
-  const [roomId, setRoomId] = useState<string | null>(null);
+  // const [roomId, setRoomId] = useState<string | null>(null);
   const [playerId, setPlayerId] = useState<number | null>(null);
 
   useEffect(() => {
@@ -84,50 +85,50 @@ export const useGameLogic = () => {
   const updateGameState = (newState: Partial<GameState>) => {
     if (!roomId) return;
     const updatedState = { ...gameState, ...newState };
-    set(ref(database, `rooms/${roomId}/gameState`), updatedState);
+    // set(ref(database, `rooms/${roomId}/gameState`), updatedState);
   };
 
-  const createRoom = async (numPlayers: number) => {
-    const newRoomRef = push(ref(database, "rooms"));
-    const roomKey = newRoomRef.key;
+  // const createRoom = async (numPlayers: number) => {
+  //   const newRoomRef = push(ref(database, "rooms"));
+  //   const roomKey = newRoomRef.key;
 
-    if (!roomKey) return;
+  //   if (!roomKey) return;
 
-    const initialPlayers: Player[] = Array(numPlayers)
-      .fill(0)
-      .map((_, index) => ({
-        playerNumber: index + 1,
-        cards: [],
-        totalPoints: 0,
-      }));
+  //   const initialPlayers: Player[] = Array(numPlayers)
+  //     .fill(0)
+  //     .map((_, index) => ({
+  //       playerNumber: index + 1,
+  //       cards: [],
+  //       totalPoints: 0,
+  //     }));
 
-    const newRoomState = {
-      gameState: { ...initialGameState, players: initialPlayers },
-      playerCount: 0,
-      maxPlayers: numPlayers,
-    };
+  //   const newRoomState = {
+  //     gameState: { ...initialGameState, players: initialPlayers },
+  //     playerCount: 0,
+  //     maxPlayers: numPlayers,
+  //   };
 
-    await set(newRoomRef, newRoomState);
-    setRoomId(roomKey);
-  };
+  //   await set(newRoomRef, newRoomState);
+  //   setRoomId(roomKey);
+  // };
 
-  const joinRoom = async (roomKey: string) => {
-    const roomRef = ref(database, `rooms/${roomKey}`);
-    const roomSnapshot = await get(roomRef);
+  // const joinRoom = async (roomKey: string) => {
+  //   const roomRef = ref(database, `rooms/${roomKey}`);
+  //   const roomSnapshot = await get(roomRef);
 
-    if (roomSnapshot.exists()) {
-      const roomData = roomSnapshot.val();
-      if (roomData.playerCount < roomData.maxPlayers) {
-        setPlayerId(roomData.playerCount + 1);
-        await set(child(roomRef, "playerCount"), roomData.playerCount + 1);
-        setRoomId(roomKey);
-      } else {
-        alert("Room is full");
-      }
-    } else {
-      alert("Room does not exist");
-    }
-  };
+  //   if (roomSnapshot.exists()) {
+  //     const roomData = roomSnapshot.val();
+  //     if (roomData.playerCount < roomData.maxPlayers) {
+  //       setPlayerId(roomData.playerCount + 1);
+  //       await set(child(roomRef, "playerCount"), roomData.playerCount + 1);
+  //       setRoomId(roomKey);
+  //     } else {
+  //       alert("Room is full");
+  //     }
+  //   } else {
+  //     alert("Room does not exist");
+  //   }
+  // };
 
   const initializeGame = () => {
     const deck = createDeck();
@@ -139,29 +140,29 @@ export const useGameLogic = () => {
       totalPoints: 0,
     }));
 
-    // Initialize with one card on the ground from the deck
+    // start game w/ one card on the ground from the deck
     const groundCards = [{ value: deck.pop() || "", isVisible: true }];
 
     updateGameState({ players, groundCards, deck });
 
     setTimeout(() => {
-      revealInitialCards(); // Temporarily reveal rightmost two cards
+      revealCardsAtStart(); // temporarily reveal rightmost two cards
     }, 10000);
   };
 
-  const revealInitialCards = () => {
+  const revealCardsAtStart = () => {
     const updatedPlayers = gameState.players.map((player) => ({
       ...player,
       cards: player.cards.map((card, index) => ({
         ...card,
-        isVisible: index >= player.cards.length - 2, // Set isVisible to true for rightmost two cards
+        isVisible: index >= player.cards.length - 2, // set isVisible to true for rightmost two cards
       })),
     }));
 
     updateGameState({ players: updatedPlayers });
 
     setTimeout(() => {
-      hideInitialCards(); // After 10 seconds, hide the revealed cards
+      hideInitialCards(); // hides the two cards again after 10 seconds
     }, 10000);
   };
 
@@ -170,7 +171,7 @@ export const useGameLogic = () => {
       ...player,
       cards: player.cards.map((card) => ({
         ...card,
-        isVisible: false, // Set isVisible back to false for all cards
+        isVisible: false, // hides the cards
       })),
     }));
 
@@ -187,70 +188,131 @@ export const useGameLogic = () => {
     });
   };
 
-  const playCard = (cardIndex?: number) => {
-    const currentPlayer = gameState.players[gameState.currentPlayerTurn - 1];
+  const playCard = (
+    selectedCardIndex?: number,
+    targetPlayerIndex?: number,
+    targetCardIndex?: number,
+  ) => {
+    const currentPlayerIndex = gameState.currentPlayerTurn - 1;
     const drawnCard = gameState.drawnCard;
 
     if (!drawnCard) return;
 
-    let updatedPlayers = [...gameState.players];
-    let updatedGroundCards = [...gameState.groundCards];
+    const updatedPlayers = [...gameState.players];
+    const updatedGroundCards = [...gameState.groundCards];
+    const currentPlayer = updatedPlayers[currentPlayerIndex];
 
-    if (cardIndex !== undefined) {
-      const discardedCard = currentPlayer.cards[cardIndex];
-      updatedPlayers[gameState.currentPlayerTurn - 1].cards[cardIndex] = {
-        value: drawnCard.value,
-        isVisible: false,
-      };
-      updatedGroundCards.push({ value: discardedCard.value, isVisible: true });
+    //toggle card visibility used for 7,8,9,10 functions
+    const toggleCardVisibility = (
+      playerIndex: number,
+      cardIndex: number,
+      isVisible: boolean,
+    ) => {
+      updatedPlayers[playerIndex].cards[cardIndex].isVisible = isVisible;
+    };
+
+    // remove a specific card from a player's hand and add it to groundCards used in basra card and basra in general
+    const removeCardFromHand = (playerIndex: number, cardIndex: number) => {
+      const removedCard = updatedPlayers[playerIndex].cards.splice(
+        cardIndex,
+        1,
+      )[0]; // Remove and get the card
+      updatedGroundCards.push(removedCard); // Add removed card to the groundCards stack
+    };
+
+    // Function to add a card to the ground stack
+    const addCardToGround = (card: Card) => {
+      updatedGroundCards.push(card);
+    };
+
+    if (selectedCardIndex !== undefined) {
+      const selectedCard = currentPlayer.cards[selectedCardIndex];
+
+      // Player throws selected card to the ground
+      addCardToGround({ value: selectedCard.value, isVisible: true });
+
+      // Check if thrown card matches the top ground card
+      if (
+        selectedCard.value ===
+        updatedGroundCards[updatedGroundCards.length - 1].value
+      ) {
+        // Take both cards if thrown card matches the top ground card
+        currentPlayer.cards.push({ value: drawnCard.value, isVisible: true });
+      }
+
+      // Remove thrown card from player's hand
+      removeCardFromHand(currentPlayerIndex, selectedCardIndex);
     } else {
-      updatedGroundCards.push({ value: drawnCard.value, isVisible: true });
-      // handle special card functions
-      if (["7", "8"].includes(drawnCard.value)) {
-        // allow player to see one of their own cards
-        const playerCards =
-          updatedPlayers[gameState.currentPlayerTurn - 1].cards;
-        const hiddenCardIndex = playerCards.findIndex(
-          (card) => !card.isVisible,
-        );
-        if (hiddenCardIndex !== -1) {
-          playerCards[hiddenCardIndex].isVisible = true;
-          setTimeout(() => {
-            playerCards[hiddenCardIndex].isVisible = false;
-            updateGameState({ players: updatedPlayers });
-          }, 3000);
-        }
-      } else if (["9", "10"].includes(drawnCard.value)) {
-        // Allow player to see one card of any other player
-        // This will be handled in the UI, allowing the player to choose
-      } else if (drawnCard.value === "K") {
-        // Allow player to see one card of each opponent
-        updatedPlayers.forEach((player, index) => {
-          if (index !== gameState.currentPlayerTurn - 1) {
-            const hiddenCardIndex = player.cards.findIndex(
-              (card) => !card.isVisible,
-            );
-            if (hiddenCardIndex !== -1) {
-              player.cards[hiddenCardIndex].isVisible = true;
-              setTimeout(() => {
-                player.cards[hiddenCardIndex].isVisible = false;
-                updateGameState({ players: updatedPlayers });
-              }, 3000);
-            }
+      // Player chooses not to draw from ground, just add drawn card to ground
+      addCardToGround({ value: drawnCard.value, isVisible: true });
+
+      // Handle special card functions
+      switch (drawnCard.value) {
+        case "7":
+        case "8":
+          // 7 & 8 shoof kartak
+          // Allow player to see one of their own cards for 3 seconds
+          const hiddenCardIndex = currentPlayer.cards.findIndex(
+            (card) => !card.isVisible,
+          );
+          if (hiddenCardIndex !== -1) {
+            toggleCardVisibility(currentPlayerIndex, hiddenCardIndex, true);
+            setTimeout(() => {
+              toggleCardVisibility(currentPlayerIndex, hiddenCardIndex, false);
+              updateGameState({ players: updatedPlayers });
+            }, 3000);
           }
-        });
-      } else if (drawnCard.value === "S") {
-        // Allow player to swap a card with any opponent
-        // This will be handled in the UI, allowing the player to choose
+          break;
+        case "9":
+        case "10":
+          // 9 & 10 shoof kart 8eirk
+          // Allow player to see one card of any other player
+          if (
+            targetPlayerIndex !== undefined &&
+            targetCardIndex !== undefined
+          ) {
+            toggleCardVisibility(targetPlayerIndex, targetCardIndex, true);
+            setTimeout(() => {
+              toggleCardVisibility(targetPlayerIndex, targetCardIndex, false);
+              updateGameState({ players: updatedPlayers });
+            }, 3000);
+          }
+          break;
+        case "K":
+          //k3b "k7b" dayer, this still needs a whole lot of refining because it might just be infinite and probably i can just keep selecting.
+          // Allows player to see a card of each opponent for 3 seconds
+          updatedPlayers.forEach((player, index) => {
+            if (index !== currentPlayerIndex) {
+              const hiddenCardIndex = player.cards.findIndex(
+                (card) => !card.isVisible,
+              );
+              if (hiddenCardIndex !== -1) {
+                toggleCardVisibility(index, hiddenCardIndex, true);
+                setTimeout(() => {
+                  toggleCardVisibility(index, hiddenCardIndex, false);
+                  updateGameState({ players: updatedPlayers });
+                }, 3000);
+              }
+            }
+          });
+          break;
+        case "S":
+          // 5od w hat : work in progress
+          break;
+        case "B":
+          // Basra : work in progress
+          break;
+        default:
+          break;
       }
     }
-
-    const nextPlayer =
+    // Update game state after playing the card
+    const nextPlayerIndex =
       (gameState.currentPlayerTurn % gameState.players.length) + 1;
     updateGameState({
       players: updatedPlayers,
       groundCards: updatedGroundCards,
-      currentPlayerTurn: nextPlayer,
+      currentPlayerTurn: nextPlayerIndex,
       drawnCard: null,
     });
   };
