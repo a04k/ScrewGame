@@ -1,36 +1,81 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Screw: The Card Game
 
-## Getting Started
+## Overview
+ multiplayer card game for 2-6 players, played over 5 rounds. Lowest score wins.
 
-First, run the development server:
+## Deck Composition
+- Number cards (1-10): 4 of each (score added is the card number)
+- Basra (B): 2 cards (+10 to score)
+- Swap (5od w Hat) (S): 4 cards (+10 to score)
+- El K7b 🐐 (K3b Dayer) (K): 2 cards (+10 to score)
+- -1 card: 1 card (subtracts 1 from score)
+- Green Screw (GS): 4 cards (add 0 to round score)
+- Red Screw: 2 cards (add 30 to score)
+- +20 cards: 2 cards (add 20 to score)
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## Setup
+1. Shuffle the deck and deal 4 cards to each player.
+2. Place one card face-up on the ground as the starting card.
+3. The remaining cards form the draw deck.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Round Start
+1. There's a 20-second window before the round starts.
+2. After the room host clicks the start game button, there's a 5-second buffer.
+3. Players then have 15 seconds to view two of their four cards.
+4. 5 Second countdown to round start
+5. Cards are then turned face-down for the round.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Gameplay
+1. Players take turns, starting with player 1.
+2. The ground cards and the deck form stacks.
+3. The current top ground card is always visible to all players.
+4. The deck cards are always flipped.
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+### On a Player's Turn
+A player can:
+- Click on one of their cards
+- Click on the deck
+- Click on the ground card
 
-## Learn More
+#### Clicking on Own Card
+- If the card matches the top ground card, it can be played (by clicking the player's card then the ground card).
+- If the played card doesn't match, the player takes both their card and the ground card into their hand.
 
-To learn more about Next.js, take a look at the following resources:
+#### Clicking on the Deck
+- The player draws a card and can either play it to the ground (by clicking the ground) or swap it with one of their own cards (by clicking on one of the cards in his hand).
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
+ Special card functions only work when drawn from the deck and played to the ground immediately.
+ ---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+#### Clicking on the Ground Card
+- The player can swap it with one of their own cards.
 
-## Deploy on Vercel
+### Special Card Functions (when drawn from deck and played)
+- 7, 8: Player can view one of their own cards
+- 9, 10: Player can view one opponent's card
+- K: Player can view one card from each opponent
+- B: Player can discard one of their cards
+- S: Player can swap one of their cards with an opponent's card
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Round End
+1. A round ends when a player calls "Screw" and a full loop is completed back to that player.
+2. The "Screw" caller's turn is skipped.
+3. All cards are revealed when the turn reaches the "Screw" caller.
+4. There's a 30-second break between rounds, showing current game totals.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+## Scoring
+- The player with the lowest round score adds 0 to their game total.
+- If the "Screw" caller doesn't have the lowest score, their round score is doubled and added to their game total.
+- All other players add their round score to their game total.
+
+## Game End
+The game ends after 5 rounds. The player with the lowest total score wins.
+
+## Additional Rules
+- When the draw deck is empty, reshuffle the ground cards (except the top card) to form a new deck.
+- Only the active player can see cards revealed by special card effects.
+- If a player clicks away from their initial click, the action is dismissed and they can make another move.
+- The game state is updated after every turn.
+
+Enjoy playing Screw: The Card Game!

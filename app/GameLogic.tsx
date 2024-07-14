@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { ref, onValue, set, push, child, get } from "firebase/database";
-import { database } from "../Firebase/Config";
+import { database } from "./Firebase/config";
 
 interface Card {
   value: string;
@@ -139,7 +139,6 @@ export const useGameLogic = () => {
         .map(() => ({ value: deck.pop() || "", isVisible: false })),
       totalPoints: 0,
     }));
-
     // start game w/ one card on the ground from the deck
     const groundCards = [{ value: deck.pop() || "", isVisible: true }];
 
@@ -149,8 +148,7 @@ export const useGameLogic = () => {
       revealCardsAtStart(); // temporarily reveal rightmost two cards
     }, 10000);
   };
-
-  const revealCardsAtStart = () => {
+  const revealCardsAtStart = () => { // this is going to be redone / won't work w/ current concept
     const updatedPlayers = gameState.players.map((player) => ({
       ...player,
       cards: player.cards.map((card, index) => ({

@@ -1,0 +1,56 @@
+Screw: The Card Game
+
+DECK:there are 4 cards of each number (1-10) the number of the card is the score added, 2 basra (B), 4 swap (S), 2 seeOneCardOfEachOpponent (K), a -1 card which minuses one from ur score, 4 green screw cars which add zero to your round score (GS), two Red screw cards which add 30 to your score, and 2 "+20" cards which add 20 to your score
+(the B,S,K cards all add +10 to your score)
+each player has 4 cards in front of him
+there is a minimum of two players and a maximum of six
+there is a card on the ground (in the beginning of each round that card is just a card pulled from the deck then placed on the ground) , and a deck of cards to pull from
+
+there is a 15 second window before the round starts, the game doesnt start when the start button is clicked there is a 2 second buffer then a 10 second window where players get to click two of their own cards to see (ONLY TWO CARDS IN THEIR HAND) after the cards have been shuffled and distributed where each player gets four cards at round start
+then cards are on their back the entire round, only visible at end or when special commands let you see a card
+the ground cards and the deck cards are stacks
+the current top ground card is always visible to all players, the deck cards are always hidden
+
+the game consists of 5 rounds
+
+How The Round works:
+    each round begins by the cards being shuffled, each player gets 4 random cards, and the start sequence as mentioned (the buffer and players get to see 2 of their cards for 10 seconds)
+    player 1 starts the round (first turn) and then player 2 etc. until the last player and then back to player 1 (circular)
+
+    the turns keep looping until someone calls/says screw and a full loop is completed back to that player (player who called screw)
+        -> When a player calls Screw:
+            their turn is skipped and they dont get to play any cards and the turn goes to the next player
+    after the turn goes to the screw caller, everyones cards are flipped to their front side (revealed) and the round is over 
+    a new round begins after 30 seconds
+    in that 30 seconds a table is shown with each players card total for the game (this round and previous rounds (if any))
+    the person with the least points in the round has zero added to his game points total
+    and if the person who called screw doesnt have the least points, his round total is multiplied by two and added to his game total.
+
+
+Rules During the turn:
+the player clicks on a card either one of his, the deck to reveal a card on the deck, or clicks the card on the ground
+if a player clicks away from the initial click the initial click is dismissed and he can do another move instead
+
+when a player clicks on one of his cards he can only do the following:
+    player has a similar card to the current top ground card he can throw it to the ground and have 3 cards left (by clicking his card then the ground card)
+    (if next turn he has a similar one too he can throw there is no max amount unless he has no cards left)
+    if he throws the card to the ground and its not a match he gets his card and the ground card to his hand
+
+when a player clicks the deck:
+    a player pulls from the deck, he can either throw the card (some cards having special abilities MENTIONED LATER) to the ground (pushed into the stack), or he can take that card instead of one of his own and that card he removed from hand is thrown to the ground
+    note: special ability cards' functions only work when they are taken from the deck and thrown, not when a player already has them and throws it.
+
+when a player clicks the ground card:
+    he can only then click on one of his cards which swaps the cards, so his card becomes the card on the ground and the card on the ground becomes his card in the same place as original was
+
+(THE SPECIAL CARDS' FUNCTIONS THAT ONLY WORK WHEN TAKEN FROM THE DECK AND THROWN TO THE GROUND)
+the 7,8 let you click one of your own to see
+the 9,10 let you click one of your opponents card to see
+the K card lets you click one card of each opponent to see
+the B card when thrown lets you click one of your cards to throw to the ground so you have one less card now
+the S card  (swap) works by a player clicking one of his own cards then clicking any opponents card
+
+the game state is updated every turn
+note: make the isvisible not show for all, only the player taking the turn can really have the visibility in the 7,8,9,10 cards
+
+when the deck of cards players pull from is empty, take all the cards on the ground (except the top card that stays as the top ground card), remove them from the stack and shuffle them and then make that the deck
