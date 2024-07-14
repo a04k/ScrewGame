@@ -32,8 +32,6 @@ const useRoomIdCheck = () => {
       const roomId = parsedValue.roomId;
       setMainId(roomId);
       parsedValue.state = true;
-      console.log("roomId :", roomId);
-      console.log('data :', data);
       
       const roomExists = data.some(doc => doc.id === roomId);
       setIsRoomIdValid(roomExists);
@@ -45,8 +43,11 @@ const useRoomIdCheck = () => {
       setIsRoomIdValid(false);
     }
   }, [data]);
+  const isIdValid = (roomId:string)=>{
+    return data.some(doc => doc.id === roomId);
+  }
 
-  return { isRoomIdValid, mainId };
+  return { isRoomIdValid, mainId , isIdValid };
 };
 
 export default useRoomIdCheck;
