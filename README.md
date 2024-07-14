@@ -2,6 +2,7 @@
 
 ## Overview
  multiplayer card game for 2-6 players, played over 5 rounds. Lowest score wins.
+ built as a fun project, and a homage to the actual game.
 
 ## Deck Composition
 - Number cards (1-10): 4 of each (score added is the card number)
@@ -77,5 +78,3 @@ The game ends after 5 rounds. The player with the lowest total score wins.
 - Only the active player can see cards revealed by special card effects.
 - If a player clicks away from their initial click, the action is dismissed and they can make another move.
 - The game state is updated after every turn.
-
-Enjoy playing Screw: The Card Game!
