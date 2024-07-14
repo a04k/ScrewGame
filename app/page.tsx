@@ -2,21 +2,24 @@
 import { useEffect, useState } from 'react';
 import Lobby from './lobby/lobby';
 import PlayingTable from './playingTable/playingTable';
-import getCookieState from './res.cookies';
+import useRoomIdCheck from './useRoomIdCheck';
+import Loading from './loading';
+
 
 const HomePage: React.FC = () => {
-    const [state, setState] = useState<boolean | null>(null);
+  const {isRoomIdValid , mainId} = useRoomIdCheck();
+  const [status, setStatus] = useState<boolean | null>(null);
 
-    useEffect(() => {
-        const state = getCookieState();
-        setState(state);
-    }, []);
+  useEffect(() => {
+    setStatus(isRoomIdValid);
+  }, [isRoomIdValid]);
 
-    if (state === null) {
-        return <div>Loading...</div>;
-    }
+  if (status === null) {
+    return <Loading/>;
+  }
 
-    return state ? <PlayingTable /> : <Lobby />;
+  return status ? <PlayingTable roomId={mainId} /> : <Lobby />;
 };
 
 export default HomePage;
+
