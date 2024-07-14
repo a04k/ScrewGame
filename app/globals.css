@@ -46,3 +46,6 @@ body {
   background-color: var(--color2);
   color : var(--color6);
  }
+.loadingText {
+  color : var(--color5);
+}

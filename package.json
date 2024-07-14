@@ -12,6 +12,7 @@
     "@types/js-cookie": "^3.0.6",
     "cookieparser": "^0.1.0",
     "express": "^4.19.2",
+    "firebase": "^10.12.3",
     "js-cookie": "^3.0.5",
     "next": "14.2.5",
     "react": "^18",
