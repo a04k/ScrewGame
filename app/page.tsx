@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import Lobby from './lobby/lobby';
 import PlayingTable from './playingTable/playingTable';
-import useRoomIdCheck from './useRoomIdCheck';
+import useRoomIdCheck from './hooks/useRoomIdCheck';
 import Loading from './loading';
 
 
@@ -21,5 +21,4 @@ const HomePage: React.FC = () => {
   return status ? <PlayingTable roomId={mainId} /> : <Lobby />;
 };
 
-export default HomePage;
-
+export default HomePage;  

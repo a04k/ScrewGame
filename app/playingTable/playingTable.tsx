@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useGetData } from "../useGetData";
+import { useGetData } from "../hooks/useGetData";
 
 type FirestoreData = {
     id: string;

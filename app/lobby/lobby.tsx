@@ -1,7 +1,8 @@
 "use Client";
 import { ChangeEvent, useState } from "react";
 import Cookies from "js-cookie";
-import useRoomIdCheck from "../useRoomIdCheck";
+import useRoomIdCheck from "../hooks/useRoomIdCheck";
+import { createRoom } from "./create.new.room";
 const Lobby = ()=>{
     const isIdValid = useRoomIdCheck().isIdValid;
     const [userName , setUserName] = useState<string>("");
@@ -33,6 +34,8 @@ const Lobby = ()=>{
     const create = ()=>{
         if(userName === ""){
             setWarning1(userNameWarning);
+        } else{
+            createRoom();
         }
     }
     return (
