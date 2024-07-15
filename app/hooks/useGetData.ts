@@ -4,7 +4,10 @@ import { collection, onSnapshot } from 'firebase/firestore';
 
 type FirestoreData = {
   id: string;
-  noPlayers: number;
+  numPlayers: number;
+  Players : string[];
+  numinspectors : number;
+  inspectors : string[];
 };
 
 export const useGetData = (roomId: string): FirestoreData | null => {

@@ -1,5 +1,5 @@
-import { useState } from "react";
 import { useGetData } from "../hooks/useGetData";
+import Loading from "../loading";
 
 type FirestoreData = {
     id: string;
@@ -18,7 +18,7 @@ const PlayingTable: React.FC<PlayingTableProps> = ({ roomId }) => {
             {data ? (
                 <pre>{JSON.stringify(data, null, 2)}</pre>
             ) : (
-                <p>Loading...</p>
+                <Loading/>
             )}
         </div>
     );
